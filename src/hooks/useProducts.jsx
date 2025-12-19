@@ -11,18 +11,16 @@ const useProducts = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const data = await apiService.get("/allProducts", {
           limit: 100,
-          offset: 0
+          offset: 0,
         });
-        
+
         console.log(" data tab tab:", data);
-        
-        const flattenedData = Array.isArray(data) 
-          ? data.flat() 
-          : [];
-        
+
+        const flattenedData = Array.isArray(data) ? data.flat() : [];
+
         console.log("Flattened products:", flattenedData);
         setProducts(flattenedData);
       } catch (err) {
@@ -32,7 +30,6 @@ const useProducts = () => {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, []);
 

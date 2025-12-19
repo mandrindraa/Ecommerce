@@ -34,7 +34,7 @@ export const AllProductsTab = ({ products, onProductClick }) => {
         onChange={setSearchTerm}
         placeholder="Search products by name, category ..."
       />
-      
+
       <div className="bg-white rounded-lg shadow overflow-hidden mt-6">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -64,13 +64,13 @@ export const AllProductsTab = ({ products, onProductClick }) => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <span className="font-medium">
-                          {product.product_name || 'N/A'}
+                          {product.product_name || "N/A"}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                        {product.category || 'N/A'}
+                        {product.category || "N/A"}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -91,21 +91,25 @@ export const AllProductsTab = ({ products, onProductClick }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-                    {searchTerm 
-                      ? `No products found for "${searchTerm}"` 
-                      : 'No products available'}
+                  <td
+                    colSpan="5"
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
+                    {searchTerm
+                      ? `No products found for "${searchTerm}"`
+                      : "No products available"}
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-        
+
         {/* Afficher le nombre de résultats */}
         {searchTerm && filteredProducts.length > 0 && (
           <div className="px-6 py-3 bg-gray-50 border-t text-sm text-gray-600">
-            Found {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''}
+            Found {filteredProducts.length} product
+            {filteredProducts.length !== 1 ? "s" : ""}
           </div>
         )}
       </div>
