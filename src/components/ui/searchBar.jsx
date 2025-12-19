@@ -1,10 +1,12 @@
-import { Package} from "lucide-react";
-
+import { Package } from "lucide-react";
 
 export const SearchBar = ({ value, onChange, placeholder = "Search..." }) => (
   <div className="bg-white rounded-lg shadow p-4">
     <div className="relative">
-      <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+      <Package
+        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+        size={20}
+      />
       <input
         type="text"
         placeholder={placeholder}

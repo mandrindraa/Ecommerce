@@ -1,39 +1,38 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SearchBar } from "./ui/searchBar";
-import apiService from "../services";
 
 export const AllProductsTab = ({ products, onProductClick }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const [filteredProducts, setFilteredProducts] = useState(products);
-  useEffect(() => {
-    const filterProducts = async () => {
-      const offset = (currentPage - 1) * itemsPerPage;
-      const data = await apiService.get("/searchProducts", {
-        limit: itemsPerPage,
-        offset: offset,
-        search: searchTerm,
-      });
-      // Handle case where API might return { products, total } or just products array
-      const productsList = Array.isArray(data) ? data : data.products || [];
-      setFilteredProducts(productsList);
-    };
-    filterProducts();
-  }, [searchTerm, currentPage]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
 
-  const handleSearchChange = (term) => {
-    setSearchTerm(term);
-    setCurrentPage(1);
-  };
+  useEffect(() => {
+    setFilteredProducts(products || []);
+  }, [products]);
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredProducts(products || []);
+      return;
+    }
+
+    const searchLower = searchTerm.toLowerCase();
+    const filtered = products.filter((product) => {
+      return (
+        product.product_name?.toLowerCase().includes(searchLower) ||
+        product.category?.toLowerCase().includes(searchLower)
+      );
+    });
+
+    console.log(`Found ${filtered.length} products for "${searchTerm}"`);
+    setFilteredProducts(filtered);
+  }, [searchTerm, products]);
 
   return (
     <div>
       <SearchBar
         value={searchTerm}
-        onChange={handleSearchChange}
-        placeholder="Search products..."
+        onChange={setSearchTerm}
+        placeholder="Search products by name, category ..."
       />
 
       <div className="bg-white rounded-lg shadow overflow-hidden mt-6">
@@ -51,10 +50,7 @@ export const AllProductsTab = ({ products, onProductClick }) => {
                   Price
                 </th>
                 <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">
-                  Stock
-                </th>
-                <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">
-                  Sales
+                  Rating
                 </th>
                 <th className="px-6 py-3 text-center text-sm font-semibold text-gray-700">
                   Action
@@ -62,66 +58,60 @@ export const AllProductsTab = ({ products, onProductClick }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-2xl">
-                        {product.image}
+              {filteredProducts && filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <tr key={product.product_id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <span className="font-medium">
+                          {product.product_name || "N/A"}
+                        </span>
                       </div>
-                      <span className="font-medium">{product.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                      {product.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    ${product.price.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 text-right">{product.stock}</td>
-                  <td className="px-6 py-4 text-right font-semibold">
-                    {product.sales}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => onProductClick(product)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                    >
-                      Details
-                    </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                        {product.category || "N/A"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      ${parseFloat(product.price || 0).toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 text-right font-semibold">
+                      {parseFloat(product.rating || 0).toFixed(1)}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => onProductClick(product)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                      >
+                        Details
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
+                    {searchTerm
+                      ? `No products found for "${searchTerm}"`
+                      : "No products available"}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-          <div className="text-sm text-gray-500">
-            Showing {filteredProducts.length} results
+        {/* Afficher le nombre de résultats */}
+        {searchTerm && filteredProducts.length > 0 && (
+          <div className="px-6 py-3 bg-gray-50 border-t text-sm text-gray-600">
+            Found {filteredProducts.length} product
+            {filteredProducts.length !== 1 ? "s" : ""}
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft size={20} />
-            </button>
-            <span className="flex items-center px-4 font-medium text-gray-700">
-              Page {currentPage}
-            </span>
-            <button
-              onClick={() => setCurrentPage((prev) => prev + 1)}
-              disabled={filteredProducts.length < itemsPerPage}
-              className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight size={20} />
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

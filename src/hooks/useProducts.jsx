@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import apiService from "../services";
 
 const useProducts = () => {
   const [products, setProducts] = useState([]);
@@ -9,10 +10,22 @@ const useProducts = () => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const data = await mockDataService.getProducts();
-        setProducts(data);
+        setError(null);
+
+        const data = await apiService.get("/allProducts", {
+          limit: 100,
+          offset: 0,
+        });
+
+        console.log(" data tab tab:", data);
+
+        const flattenedData = Array.isArray(data) ? data.flat() : [];
+
+        console.log("Flattened products:", flattenedData);
+        setProducts(flattenedData);
       } catch (err) {
-        setError(err.message);
+        console.error("Error fetching products:", err);
+        setError(err.message || "Failed to load products");
       } finally {
         setLoading(false);
       }
